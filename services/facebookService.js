@@ -75,6 +75,22 @@ class FacebookService {
     }
   }
 
+  // Lấy thông tin page
+  async getPageInfo(pageId, pageAccessToken) {
+    try {
+      const response = await axios.get(`${this.baseURL}/${pageId}`, {
+        params: {
+          access_token: pageAccessToken,
+          fields: 'id,name'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Lỗi lấy thông tin page ${pageId}:`, error.response?.data || error.message);
+      throw new Error(`Không thể lấy thông tin page ${pageId}`);
+    }
+  }
+
   // Kiểm tra token có hợp lệ không
   async validateToken() {
     try {

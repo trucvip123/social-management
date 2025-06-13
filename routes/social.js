@@ -30,31 +30,48 @@ router.post('/connect/facebook', auth, async (req, res) => {
       });
     }
 
-    // Lấy thông tin user
-    const userInfo = await facebookService.getUserInfo();
+    let facebookAccountData = {};
+
+    if (pageId) {
+      // Nếu có pageId, giả định đây là Page Access Token
+      const pageInfo = await facebookService.getPageInfo(pageId, accessToken);
+      facebookAccountData = {
+        accessToken: accessToken,
+        pageId: pageId,
+        pageName: pageInfo.name,
+        isConnected: true
+      };
+    } else {
+      // Nếu không có pageId, giả định đây là User Access Token
+      const userInfo = await facebookService.getUserInfo();
+      facebookAccountData = {
+        accessToken: accessToken,
+        pageId: null,
+        pageName: null,
+        isConnected: true,
+        userName: userInfo.name, // Lưu trữ tên người dùng
+        userId: userInfo.id // Lưu trữ ID người dùng
+      };
+    }
     
     // Cập nhật thông tin user
     const user = await User.findById(req.user.id);
-    user.socialAccounts.facebook = {
-      accessToken: accessToken,
-      pageId: pageId || null,
-      pageName: pageId ? 'Connected Page' : null,
-      isConnected: true
-    };
+    user.socialAccounts.facebook = facebookAccountData;
     
     await user.save();
 
     res.json({
       success: true,
       message: 'Kết nối Facebook thành công',
-      userInfo: userInfo
+      socialAccount: facebookAccountData // Trả về thông tin tài khoản Facebook đã kết nối
     });
 
   } catch (error) {
     console.error('Lỗi kết nối Facebook:', error);
     res.status(500).json({
       success: false,
-      message: 'Lỗi khi kết nối Facebook'
+      message: 'Lỗi khi kết nối Facebook',
+      error: error.message // Trả về thông báo lỗi chi tiết hơn
     });
   }
 });
@@ -88,6 +105,8 @@ router.post('/connect/twitter', auth, async (req, res) => {
     // Cập nhật thông tin user
     const user = await User.findById(req.user.id);
     user.socialAccounts.twitter = {
+      apiKey: apiKey,
+      apiSecret: apiSecret,
       accessToken: accessToken,
       accessTokenSecret: accessTokenSecret,
       isConnected: true

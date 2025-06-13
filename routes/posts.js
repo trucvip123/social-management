@@ -151,8 +151,8 @@ async function publishPost(post, user) {
   if (post.platforms.twitter.enabled && user.socialAccounts.twitter.isConnected) {
     try {
       const twitterService = new TwitterService(
-        process.env.TWITTER_API_KEY,
-        process.env.TWITTER_API_SECRET,
+        user.socialAccounts.twitter.apiKey,
+        user.socialAccounts.twitter.apiSecret,
         user.socialAccounts.twitter.accessToken,
         user.socialAccounts.twitter.accessTokenSecret
       );

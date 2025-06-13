@@ -34,6 +34,8 @@ const userSchema = new mongoose.Schema({
       isConnected: { type: Boolean, default: false }
     },
     twitter: {
+      apiKey: String,
+      apiSecret: String,
       accessToken: String,
       accessTokenSecret: String,
       isConnected: { type: Boolean, default: false }

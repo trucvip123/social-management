@@ -73,7 +73,7 @@ class TwitterService {
   // Kiểm tra credentials có hợp lệ không
   async validateCredentials() {
     try {
-      await this.client.v2.me();
+      await this.client.currentUser();
       return true;
     } catch (error) {
       return false;
