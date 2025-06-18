@@ -15,15 +15,38 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB
 connectDB();
 
-// Middleware
+// CORS configuration - sử dụng biến môi trường
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://74.249.129.209',
+  'http://74.249.129.209:3000',
+  process.env.CLIENT_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
+  origin: function (origin, callback) {
+    // Cho phép requests không có origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
+// Xử lý preflight OPTIONS requests
+app.options('*', cors());
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Session configuration
+// Session configuration - tạm thời disable để fix CORS
+/*
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
@@ -32,18 +55,29 @@ app.use(session({
     mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/social-management'
   }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    secure: false,
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
+*/
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/social', require('./routes/social'));
 app.use('/api/posts', require('./routes/posts'));
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
+// Health check endpoint
+app.get('/api/auth/health', (req, res) => {
+  res.status(200).json({ 
+    success: true, 
+    message: 'Server is healthy',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Serve static files in production (only if not running in Docker)
+if (process.env.NODE_ENV === 'production' && !process.env.DOCKER_ENV) {
   app.use(express.static(path.join(__dirname, 'client/build')));
   
   app.get('*', (req, res) => {
@@ -64,4 +98,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server đang chạy trên port ${PORT}`);
   console.log(`Môi trường: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Docker environment: ${process.env.DOCKER_ENV || 'false'}`);
 }); 
