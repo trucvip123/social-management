@@ -27,4 +27,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:5000/api/auth/health || exit 1
 
 # Chạy ứng dụng
-CMD ["npm", "start"] 
+CMD ["npm", "start"]
+
+# Set timezone
+ENV TZ=Asia/Ho_Chi_Minh 

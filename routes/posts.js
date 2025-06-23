@@ -5,6 +5,9 @@ const User = require('../models/User');
 const FacebookService = require('../services/facebookService');
 const TwitterService = require('../services/twitterService');
 const InstagramService = require('../services/instagramService');
+const dayjs = require('dayjs');
+const timezone = require('dayjs/plugin/timezone');
+dayjs.extend(timezone);
 
 const router = express.Router();
 
@@ -12,6 +15,9 @@ const router = express.Router();
 router.post('/', auth, async (req, res) => {
   try {
     const { content, media, platforms, scheduledFor } = req.body;
+    // Convert scheduledFor từ Asia/Ho_Chi_Minh sang UTC trước khi lưu
+    let scheduledForUTC = scheduledFor ? dayjs.tz(scheduledFor, 'Asia/Ho_Chi_Minh').utc().toDate() : null;
+    console.log("ScheduledFor", scheduledFor);
     
     if (!content || content.trim().length === 0) {
       return res.status(400).json({
@@ -41,7 +47,7 @@ router.post('/', auth, async (req, res) => {
         instagram: { enabled: platforms?.instagram || false, status: 'pending' },
         twitter: { enabled: platforms?.twitter || false, status: 'pending' }
       },
-      scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
+      scheduledFor: scheduledForUTC,
       isPublished: !scheduledFor
     });
 
@@ -54,7 +60,12 @@ router.post('/', auth, async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Tạo bài đăng thành công',
-      post: post
+      post: {
+        ...post.toObject(),
+        scheduledFor: post.scheduledFor ? dayjs(post.scheduledFor).tz('Asia/Ho_Chi_Minh').format() : null,
+        createdAt: dayjs(post.createdAt).tz('Asia/Ho_Chi_Minh').format(),
+        updatedAt: dayjs(post.updatedAt).tz('Asia/Ho_Chi_Minh').format()
+      }
     });
 
   } catch (error) {
@@ -81,7 +92,12 @@ router.get('/', auth, async (req, res) => {
 
     res.json({
       success: true,
-      posts: posts,
+      posts: posts.map(post => ({
+        ...post.toObject(),
+        scheduledFor: post.scheduledFor ? dayjs(post.scheduledFor).tz('Asia/Ho_Chi_Minh').format() : null,
+        createdAt: dayjs(post.createdAt).tz('Asia/Ho_Chi_Minh').format(),
+        updatedAt: dayjs(post.updatedAt).tz('Asia/Ho_Chi_Minh').format()
+      })),
       totalPages: Math.ceil(total / limit),
       currentPage: page,
       total: total
@@ -189,4 +205,4 @@ async function publishPost(post, user) {
   await post.save();
 }
 
-module.exports = router; 
+module.exports = { router, publishPost }; 

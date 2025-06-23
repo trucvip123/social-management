@@ -5,6 +5,16 @@ const dotenv = require('dotenv');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const connectDB = require('./config/database');
+const cron = require('node-cron');
+const Post = require('./models/Post');
+const User = require('./models/User');
+const { router: postsRouter, publishPost } = require('./routes/posts');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Ho_Chi_Minh');
 
 // Load environment variables
 dotenv.config();
@@ -18,6 +28,7 @@ connectDB();
 // CORS configuration - sử dụng biến môi trường
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://127.0.0.1:3000',
   'http://74.249.129.209',
   'http://74.249.129.209:3000',
   process.env.CLIENT_URL
@@ -65,7 +76,7 @@ app.use(session({
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/social', require('./routes/social'));
-app.use('/api/posts', require('./routes/posts'));
+app.use('/api/posts', postsRouter);
 
 // Health check endpoint
 app.get('/api/auth/health', (req, res) => {
@@ -88,11 +99,35 @@ if (process.env.NODE_ENV === 'production' && !process.env.DOCKER_ENV) {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(200).json({ success: false, message: 'CORS error' });
+  }
+  next(err);
   res.status(500).json({ 
     success: false, 
     message: 'Có lỗi xảy ra trên server',
     error: process.env.NODE_ENV === 'development' ? err.message : {}
   });
+});
+
+// Cron job: mỗi phút kiểm tra các bài post scheduled mà chưa đăng
+cron.schedule('* * * * *', async () => {
+  try {
+    const now = dayjs().tz('Asia/Ho_Chi_Minh');
+    // Lấy các post đã đến hạn đăng, chưa đăng
+    const posts = await Post.find({
+      scheduledFor: { $lte: now.toDate() },
+      isPublished: false
+    }).populate('user');
+
+    for (const post of posts) {
+      // Gọi hàm publishPost đã có sẵn
+      await publishPost(post, post.user);
+      console.log(`[CRON] Đã đăng bài scheduled _id=${post._id}`);
+    }
+  } catch (err) {
+    console.error('[CRON] Lỗi xử lý scheduled post:', err);
+  }
 });
 
 app.listen(PORT, () => {

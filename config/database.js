@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/social-management', {
+    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://admin:password123@mongodb:27017/social-management?authSource=admin', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -14,4 +14,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB; 
+module.exports = connectDB;

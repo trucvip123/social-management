@@ -61,12 +61,15 @@ router.post('/register', async (req, res) => {
 
 // Đăng nhập
 router.post('/login', async (req, res) => {
+  console.log('[LOGIN] Body:', req.body);
   try {
     const { email, password } = req.body;
 
     // Tìm user
     const user = await User.findOne({ email });
+    console.log('[LOGIN] User found:', !!user);
     if (!user) {
+      console.log('[LOGIN] Sai email');
       return res.status(400).json({
         success: false,
         message: 'Email hoặc mật khẩu không đúng'
@@ -75,7 +78,9 @@ router.post('/login', async (req, res) => {
 
     // Kiểm tra password
     const isMatch = await user.comparePassword(password);
+    console.log('[LOGIN] Password match:', isMatch);
     if (!isMatch) {
+      console.log('[LOGIN] Sai mật khẩu');
       return res.status(400).json({
         success: false,
         message: 'Email hoặc mật khẩu không đúng'
@@ -89,6 +94,7 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    console.log('[LOGIN] Đăng nhập thành công:', user.email);
     res.json({
       success: true,
       message: 'Đăng nhập thành công',
@@ -102,7 +108,7 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Lỗi đăng nhập:', error);
+    console.error('[LOGIN] Lỗi đăng nhập:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi server khi đăng nhập'
