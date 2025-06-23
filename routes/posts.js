@@ -22,7 +22,7 @@ router.post('/', auth, async (req, res) => {
     if (!content || content.trim().length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Nội dung bài đăng là bắt buộc'
+        message: 'Post content is required'
       });
     }
 
@@ -34,7 +34,7 @@ router.post('/', auth, async (req, res) => {
     if (connectedPlatforms.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Bạn cần kết nối ít nhất 1 mạng xã hội trước khi đăng bài'
+        message: 'You need to connect at least one social network before posting'
       });
     }
 
@@ -59,7 +59,7 @@ router.post('/', auth, async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Tạo bài đăng thành công',
+      message: 'Post created successfully',
       post: {
         ...post.toObject(),
         scheduledFor: post.scheduledFor ? dayjs(post.scheduledFor).tz('Asia/Ho_Chi_Minh').format() : null,
@@ -72,7 +72,7 @@ router.post('/', auth, async (req, res) => {
     console.error('Lỗi tạo bài đăng:', error);
     res.status(500).json({
       success: false,
-      message: 'Lỗi khi tạo bài đăng'
+      message: 'Error creating post'
     });
   }
 });
@@ -107,7 +107,7 @@ router.get('/', auth, async (req, res) => {
     console.error('Lỗi lấy danh sách bài đăng:', error);
     res.status(500).json({
       success: false,
-      message: 'Lỗi khi lấy danh sách bài đăng'
+      message: 'Error fetching posts'
     });
   }
 });
@@ -120,7 +120,7 @@ router.post('/:id/publish', auth, async (req, res) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        message: 'Không tìm thấy bài đăng'
+        message: 'Post not found'
       });
     }
 
@@ -129,7 +129,7 @@ router.post('/:id/publish', auth, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Đăng lại bài đăng thành công',
+      message: 'Post republished successfully',
       post: post
     });
 
@@ -137,7 +137,7 @@ router.post('/:id/publish', auth, async (req, res) => {
     console.error('Lỗi đăng lại bài đăng:', error);
     res.status(500).json({
       success: false,
-      message: 'Lỗi khi đăng lại bài đăng'
+      message: 'Error republishing post'
     });
   }
 });

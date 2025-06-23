@@ -15,7 +15,7 @@ router.post('/connect/facebook', auth, async (req, res) => {
     if (!accessToken) {
       return res.status(400).json({
         success: false,
-        message: 'Access token Facebook là bắt buộc'
+        message: 'Access token Facebook is required'
       });
     }
 
@@ -26,7 +26,7 @@ router.post('/connect/facebook', auth, async (req, res) => {
     if (!isValid) {
       return res.status(400).json({
         success: false,
-        message: 'Access token Facebook không hợp lệ'
+        message: 'Access token Facebook is invalid'
       });
     }
 
@@ -62,16 +62,16 @@ router.post('/connect/facebook', auth, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Kết nối Facebook thành công',
-      socialAccount: facebookAccountData // Trả về thông tin tài khoản Facebook đã kết nối
+      message: 'Facebook connected successfully',
+      socialAccount: facebookAccountData
     });
 
   } catch (error) {
     console.error('Lỗi kết nối Facebook:', error);
     res.status(500).json({
       success: false,
-      message: 'Lỗi khi kết nối Facebook',
-      error: error.message // Trả về thông báo lỗi chi tiết hơn
+      message: 'Error connecting Facebook',
+      error: error.message
     });
   }
 });
@@ -84,7 +84,7 @@ router.post('/connect/twitter', auth, async (req, res) => {
     if (!apiKey || !apiSecret || !accessToken || !accessTokenSecret) {
       return res.status(400).json({
         success: false,
-        message: 'Tất cả thông tin Twitter API là bắt buộc'
+        message: 'All Twitter API information is required'
       });
     }
 
@@ -95,7 +95,7 @@ router.post('/connect/twitter', auth, async (req, res) => {
     if (!isValid) {
       return res.status(400).json({
         success: false,
-        message: 'Thông tin Twitter API không hợp lệ'
+        message: 'Invalid Twitter API information'
       });
     }
 
@@ -116,7 +116,7 @@ router.post('/connect/twitter', auth, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Kết nối Twitter thành công',
+      message: 'Twitter connected successfully',
       userInfo: userInfo
     });
 
@@ -124,7 +124,7 @@ router.post('/connect/twitter', auth, async (req, res) => {
     console.error('Lỗi kết nối Twitter:', error);
     res.status(500).json({
       success: false,
-      message: 'Lỗi khi kết nối Twitter'
+      message: 'Error connecting Twitter'
     });
   }
 });
@@ -137,7 +137,7 @@ router.post('/connect/instagram', auth, async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Username và password Instagram là bắt buộc'
+        message: 'Username and password Instagram are required'
       });
     }
 
@@ -148,7 +148,7 @@ router.post('/connect/instagram', auth, async (req, res) => {
     if (!isValid) {
       return res.status(400).json({
         success: false,
-        message: 'Thông tin đăng nhập Instagram không hợp lệ'
+        message: 'Invalid Instagram login information'
       });
     }
 
@@ -166,7 +166,7 @@ router.post('/connect/instagram', auth, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Kết nối Instagram thành công',
+      message: 'Instagram connected successfully',
       userInfo: userInfo
     });
 
@@ -174,7 +174,7 @@ router.post('/connect/instagram', auth, async (req, res) => {
     console.error('Lỗi kết nối Instagram:', error);
     res.status(500).json({
       success: false,
-      message: 'Lỗi khi kết nối Instagram'
+      message: 'Error connecting Instagram'
     });
   }
 });
@@ -188,7 +188,7 @@ router.post('/disconnect/:platform', auth, async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'Không tìm thấy user'
+        message: 'User not found'
       });
     }
 
@@ -214,7 +214,7 @@ router.post('/disconnect/:platform', auth, async (req, res) => {
     } else {
       return res.status(400).json({
         success: false,
-        message: 'Platform không hợp lệ'
+        message: 'Invalid platform'
       });
     }
 
@@ -222,14 +222,14 @@ router.post('/disconnect/:platform', auth, async (req, res) => {
 
     res.json({
       success: true,
-      message: `Đã ngắt kết nối ${platform} thành công`
+      message: `Disconnected from ${platform} successfully`
     });
 
   } catch (error) {
     console.error('Lỗi ngắt kết nối:', error);
     res.status(500).json({
       success: false,
-      message: 'Lỗi khi ngắt kết nối'
+      message: 'Error disconnecting'
     });
   }
 });
@@ -248,7 +248,7 @@ router.get('/status', auth, async (req, res) => {
     console.error('Lỗi lấy trạng thái:', error);
     res.status(500).json({
       success: false,
-      message: 'Lỗi khi lấy trạng thái kết nối'
+      message: 'Error fetching connection status'
     });
   }
 });

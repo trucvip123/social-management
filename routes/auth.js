@@ -18,7 +18,7 @@ router.post('/register', async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'Email hoặc username đã tồn tại'
+        message: 'Email or username already exists'
       });
     }
 
@@ -40,7 +40,7 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Đăng ký thành công',
+      message: 'Registration successful',
       token,
       user: {
         id: user._id,
@@ -54,7 +54,7 @@ router.post('/register', async (req, res) => {
     console.error('Lỗi đăng ký:', error);
     res.status(500).json({
       success: false,
-      message: 'Lỗi server khi đăng ký'
+      message: 'Server error during registration'
     });
   }
 });
@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
       console.log('[LOGIN] Sai email');
       return res.status(400).json({
         success: false,
-        message: 'Email hoặc mật khẩu không đúng'
+        message: 'Incorrect email or password'
       });
     }
 
@@ -83,7 +83,7 @@ router.post('/login', async (req, res) => {
       console.log('[LOGIN] Sai mật khẩu');
       return res.status(400).json({
         success: false,
-        message: 'Email hoặc mật khẩu không đúng'
+        message: 'Incorrect email or password'
       });
     }
 
@@ -97,7 +97,7 @@ router.post('/login', async (req, res) => {
     console.log('[LOGIN] Đăng nhập thành công:', user.email);
     res.json({
       success: true,
-      message: 'Đăng nhập thành công',
+      message: 'Login successful',
       token,
       user: {
         id: user._id,
@@ -111,7 +111,7 @@ router.post('/login', async (req, res) => {
     console.error('[LOGIN] Lỗi đăng nhập:', error);
     res.status(500).json({
       success: false,
-      message: 'Lỗi server khi đăng nhập'
+      message: 'Server error during login'
     });
   }
 });
