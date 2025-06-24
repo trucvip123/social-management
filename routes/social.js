@@ -67,7 +67,7 @@ router.post('/connect/facebook', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Lỗi kết nối Facebook:', error);
+    console.error('Error connecting to Facebook:', error);
     res.status(500).json({
       success: false,
       message: 'Error connecting Facebook',
@@ -121,7 +121,7 @@ router.post('/connect/twitter', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Lỗi kết nối Twitter:', error);
+    console.error('Error connecting to Twitter:', error);
     res.status(500).json({
       success: false,
       message: 'Error connecting Twitter'
@@ -171,7 +171,7 @@ router.post('/connect/instagram', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Lỗi kết nối Instagram:', error);
+    console.error('Error connecting to Instagram:', error);
     res.status(500).json({
       success: false,
       message: 'Error connecting Instagram'
@@ -226,7 +226,7 @@ router.post('/disconnect/:platform', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Lỗi ngắt kết nối:', error);
+    console.error('Error disconnecting:', error);
     res.status(500).json({
       success: false,
       message: 'Error disconnecting'
@@ -245,7 +245,7 @@ router.get('/status', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Lỗi lấy trạng thái:', error);
+    console.error('Error fetching status:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching connection status'

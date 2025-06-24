@@ -25,7 +25,7 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error('Lỗi xác thực:', error);
+    console.error('Authentication error:', error);
     res.status(401).json({ 
       success: false, 
       message: 'Token không hợp lệ' 

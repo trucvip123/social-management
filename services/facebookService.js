@@ -18,7 +18,7 @@ class FacebookService {
 
       return response.data.data;
     } catch (error) {
-      console.error('Lỗi lấy pages Facebook:', error.response?.data || error.message);
+      console.error('Error fetching Facebook pages:', error.response?.data || error.message);
       throw new Error('Không thể lấy danh sách pages Facebook');
     }
   }
@@ -53,7 +53,7 @@ class FacebookService {
         return response.data;
       }
     } catch (error) {
-      console.error('Lỗi đăng bài Facebook:', error.response?.data || error.message);
+      console.error('Error posting to Facebook:', error.response?.data || error.message);
       throw new Error('Không thể đăng bài lên Facebook');
     }
   }
@@ -70,7 +70,7 @@ class FacebookService {
 
       return response.data;
     } catch (error) {
-      console.error('Lỗi lấy thông tin user Facebook:', error.response?.data || error.message);
+      console.error('Error fetching Facebook user info:', error.response?.data || error.message);
       throw new Error('Không thể lấy thông tin user Facebook');
     }
   }
@@ -86,7 +86,7 @@ class FacebookService {
       });
       return response.data;
     } catch (error) {
-      console.error(`Lỗi lấy thông tin page ${pageId}:`, error.response?.data || error.message);
+      console.error(`Error fetching page info ${pageId}:`, error.response?.data || error.message);
       throw new Error(`Không thể lấy thông tin page ${pageId}`);
     }
   }

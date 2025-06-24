@@ -123,15 +123,15 @@ cron.schedule('* * * * *', async () => {
     for (const post of posts) {
       // Gọi hàm publishPost đã có sẵn
       await publishPost(post, post.user);
-      console.log(`[CRON] Đã đăng bài scheduled _id=${post._id}`);
+      console.log(`[CRON] Scheduled post published _id=${post._id}`);
     }
   } catch (err) {
-    console.error('[CRON] Lỗi xử lý scheduled post:', err);
+    console.error('[CRON] Error processing scheduled post:', err);
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server đang chạy trên port ${PORT}`);
-  console.log(`Môi trường: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Docker environment: ${process.env.DOCKER_ENV || 'false'}`);
 }); 

@@ -28,7 +28,7 @@ class TwitterService {
             const mediaId = await this.client.v1.uploadMedia(mediaBuffer);
             mediaIds.push(mediaId);
           } catch (error) {
-            console.error('Lỗi upload media:', error);
+            console.error('Error uploading media:', error);
           }
         }
 
@@ -40,7 +40,7 @@ class TwitterService {
       const tweet = await this.client.v2.tweet(tweetData);
       return tweet.data;
     } catch (error) {
-      console.error('Lỗi đăng tweet:', error);
+      console.error('Error posting tweet:', error);
       throw new Error('Không thể đăng tweet');
     }
   }
@@ -54,7 +54,7 @@ class TwitterService {
       });
       return Buffer.from(response.data);
     } catch (error) {
-      console.error('Lỗi download media:', error);
+      console.error('Error downloading media:', error);
       throw new Error('Không thể download media');
     }
   }
@@ -65,7 +65,7 @@ class TwitterService {
       const user = await this.client.v2.me();
       return user.data;
     } catch (error) {
-      console.error('Lỗi lấy thông tin user Twitter:', error);
+      console.error('Error fetching Twitter user info:', error);
       throw new Error('Không thể lấy thông tin user Twitter');
     }
   }
@@ -86,7 +86,7 @@ class TwitterService {
       const timeline = await this.client.v2.userTimeline();
       return timeline.data;
     } catch (error) {
-      console.error('Lỗi lấy timeline:', error);
+      console.error('Error fetching timeline:', error);
       throw new Error('Không thể lấy timeline');
     }
   }

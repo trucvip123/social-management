@@ -16,7 +16,7 @@ class InstagramService {
       this.isLoggedIn = true;
       return true;
     } catch (error) {
-      console.error('Lỗi đăng nhập Instagram:', error);
+      console.error('Error logging in to Instagram:', error);
       throw new Error('Không thể đăng nhập Instagram');
     }
   }
@@ -40,7 +40,7 @@ class InstagramService {
       const result = await this.ig.publish.photo(publishOptions);
       return result;
     } catch (error) {
-      console.error('Lỗi đăng bài Instagram:', error);
+      console.error('Error posting to Instagram:', error);
       throw new Error('Không thể đăng bài lên Instagram');
     }
   }
@@ -60,7 +60,7 @@ class InstagramService {
       const result = await this.ig.publish.story(storyOptions);
       return result;
     } catch (error) {
-      console.error('Lỗi đăng story Instagram:', error);
+      console.error('Error posting Instagram story:', error);
       throw new Error('Không thể đăng story lên Instagram');
     }
   }
@@ -74,7 +74,7 @@ class InstagramService {
       });
       return Buffer.from(response.data);
     } catch (error) {
-      console.error('Lỗi download media:', error);
+      console.error('Error downloading media:', error);
       throw new Error('Không thể download media');
     }
   }
@@ -94,7 +94,7 @@ class InstagramService {
         isPrivate: user.is_private
       };
     } catch (error) {
-      console.error('Lỗi lấy thông tin user Instagram:', error);
+      console.error('Error fetching Instagram user info:', error);
       throw new Error('Không thể lấy thông tin user Instagram');
     }
   }
@@ -120,7 +120,7 @@ class InstagramService {
       const posts = await feed.items();
       return posts;
     } catch (error) {
-      console.error('Lỗi lấy feed Instagram:', error);
+      console.error('Error fetching Instagram feed:', error);
       throw new Error('Không thể lấy feed Instagram');
     }
   }

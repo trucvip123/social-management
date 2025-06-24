@@ -69,7 +69,7 @@ router.post('/', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Lỗi tạo bài đăng:', error);
+    console.error('Error creating post:', error);
     res.status(500).json({
       success: false,
       message: 'Error creating post'
@@ -104,7 +104,7 @@ router.get('/', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Lỗi lấy danh sách bài đăng:', error);
+    console.error('Error fetching posts:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching posts'
@@ -134,7 +134,7 @@ router.post('/:id/publish', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Lỗi đăng lại bài đăng:', error);
+    console.error('Error republishing post:', error);
     res.status(500).json({
       success: false,
       message: 'Error republishing post'

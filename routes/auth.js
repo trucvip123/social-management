@@ -51,7 +51,7 @@ router.post('/register', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Lỗi đăng ký:', error);
+    console.error('Error during registration:', error);
     res.status(500).json({
       success: false,
       message: 'Server error during registration'
@@ -69,7 +69,7 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email });
     console.log('[LOGIN] User found:', !!user);
     if (!user) {
-      console.log('[LOGIN] Sai email');
+      console.log('[LOGIN] Wrong email');
       return res.status(400).json({
         success: false,
         message: 'Incorrect email or password'
@@ -80,7 +80,7 @@ router.post('/login', async (req, res) => {
     const isMatch = await user.comparePassword(password);
     console.log('[LOGIN] Password match:', isMatch);
     if (!isMatch) {
-      console.log('[LOGIN] Sai mật khẩu');
+      console.log('[LOGIN] Wrong password');
       return res.status(400).json({
         success: false,
         message: 'Incorrect email or password'
@@ -94,7 +94,7 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    console.log('[LOGIN] Đăng nhập thành công:', user.email);
+    console.log('[LOGIN] Login successful:', user.email);
     res.json({
       success: true,
       message: 'Login successful',
@@ -108,7 +108,7 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('[LOGIN] Lỗi đăng nhập:', error);
+    console.error('[LOGIN] Login error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error during login'
@@ -129,7 +129,7 @@ router.get('/me', auth, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Lỗi lấy thông tin user:', error);
+    console.error('Error fetching user info:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi server'
