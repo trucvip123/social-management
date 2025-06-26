@@ -201,6 +201,27 @@ async function publishPost(post, user) {
     }
   }
 
+  // Đăng lên Facebook Group
+  if (post.platforms.facebookGroup && post.platforms.facebookGroup.enabled && user.socialAccounts.facebook.groups && user.socialAccounts.facebook.groups.length > 0) {
+    post.platforms.facebookGroup.results = [];
+    for (const group of user.socialAccounts.facebook.groups) {
+      if (group.isConnected) {
+        try {
+          const facebookService = new FacebookService(group.accessToken);
+          const result = await facebookService.postToGroup(
+            group.groupId,
+            group.accessToken,
+            post.content,
+            post.media
+          );
+          post.platforms.facebookGroup.results.push({ groupId: group.groupId, status: 'posted', postId: result.id });
+        } catch (error) {
+          post.platforms.facebookGroup.results.push({ groupId: group.groupId, status: 'failed', error: error.message });
+        }
+      }
+    }
+  }
+
   post.isPublished = true;
   await post.save();
 }

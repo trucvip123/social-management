@@ -12,6 +12,8 @@ const { router: postsRouter, publishPost } = require('./routes/posts');
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Ho_Chi_Minh');
@@ -114,21 +116,57 @@ app.use((err, req, res, next) => {
 cron.schedule('* * * * *', async () => {
   try {
     const now = dayjs().tz('Asia/Ho_Chi_Minh');
-    // Lấy các post đã đến hạn đăng, chưa đăng
-    const posts = await Post.find({
-      scheduledFor: { $lte: now.toDate() },
-      isPublished: false
-    }).populate('user');
-
-    for (const post of posts) {
+    console.log(`[CRON] Start at ${now.format()}`);
+    let count = 0;
+    while (true) {
+      // Lấy 1 post đã đến hạn đăng, chưa đăng và set isPublished=true ngay khi lấy
+      const post = await Post.findOneAndUpdate(
+        {
+          scheduledFor: { $lte: now.toDate() },
+          isPublished: false
+        },
+        { $set: { isPublished: true } },
+        { new: true }
+      ).populate('user');
+      if (!post) {
+        if (count === 0) {
+          console.log('[CRON] No scheduled post to publish.');
+        }
+        break;
+      }
+      count++;
+      console.log(`[CRON] Picked post _id=${post._id}, scheduledFor=${post.scheduledFor}, isPublished(before)=false, isPublished(after)=${post.isPublished}`);
       // Gọi hàm publishPost đã có sẵn
       await publishPost(post, post.user);
       console.log(`[CRON] Scheduled post published _id=${post._id}`);
+    }
+    if (count > 0) {
+      console.log(`[CRON] Total published this run: ${count}`);
     }
   } catch (err) {
     console.error('[CRON] Error processing scheduled post:', err);
   }
 });
+
+// Sau khi cấu hình app và trước app.listen
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Social Management API',
+      version: '1.0.0',
+      description: 'API documentation for Social Management',
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`,
+      },
+    ],
+  },
+  apis: ['./routes/*.js'],
+};
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

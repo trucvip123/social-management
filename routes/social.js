@@ -4,6 +4,7 @@ const User = require('../models/User');
 const FacebookService = require('../services/facebookService');
 const TwitterService = require('../services/twitterService');
 const InstagramService = require('../services/instagramService');
+const { postToFacebookGroup } = require('../services/facebookSeleniumService');
 
 const router = express.Router();
 
@@ -250,6 +251,29 @@ router.get('/status', auth, async (req, res) => {
       success: false,
       message: 'Error fetching connection status'
     });
+  }
+});
+
+// Đăng bài lên group Facebook bằng Selenium
+router.post('/post/facebook-group-selenium', auth, async (req, res) => {
+  let { cookies, groupId, content } = req.body;
+  console.log('[POST /post/facebook-group-selenium] Body:', req.body);
+  let missing = [];
+  if (!cookies || !groupId || !content) missing.push('cookies/groupId/content');
+  if (missing.length > 0) {
+    console.warn(`[POST /post/facebook-group-selenium] Missing fields: ${missing.join(', ')}`);
+    return res.status(400).json({ message: `Missing required field(s): ${missing.join(', ')}` });
+  }
+  // Nếu cookies là object (key-value), convert sang array object
+  if (!Array.isArray(cookies)) {
+    cookies = Object.entries(cookies).map(([name, value]) => ({ name, value, domain: '.facebook.com' }));
+  }
+  const result = await postToFacebookGroup({ cookies, groupId, content });
+  console.log('[POST /post/facebook-group-selenium] Result:', result);
+  if (result.success) {
+    res.json({ message: result.message });
+  } else {
+    res.status(500).json({ message: result.message });
   }
 });
 
