@@ -204,6 +204,7 @@ SocialManagement/
 ### Lỗi CORS
 - Kiểm tra CLIENT_URL trong .env
 - Đảm bảo frontend và backend chạy đúng ports
+- In dev enviroment: Restart laptop/cpu
 
 ## Đóng góp
 

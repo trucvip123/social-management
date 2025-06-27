@@ -30,6 +30,7 @@ connectDB();
 // CORS configuration - sử dụng biến môi trường
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:3001',
   'http://127.0.0.1:3000',
   'http://74.249.129.209',
   'http://74.249.129.209:3000',

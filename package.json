@@ -13,7 +13,8 @@
   "dependencies": {
     "axios": "^1.6.0",
     "bcryptjs": "^2.4.3",
-    "chromedriver": "^125.0.3",
+    "chromedriver": "^137.0.0",
+    "clipboardy": "^4.0.0",
     "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
@@ -26,7 +27,10 @@
     "mongoose": "^8.0.0",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.2",
+    "robotjs": "^0.6.0",
     "selenium-webdriver": "^4.33.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "twitter-api-v2": "^1.15.0"
   },
   "devDependencies": {

@@ -1,5 +1,7 @@
 const { Builder, By, Key, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
+const clipboard = require('clipboardy').default;
+const robot = require('robotjs');
 
 async function postToFacebookGroup({ email, password, cookies, groupId, content }) {
   let options = new chrome.Options();
@@ -52,7 +54,7 @@ async function postToFacebookGroup({ email, password, cookies, groupId, content 
     // Chờ post box và click
     console.log('[Selenium] Waiting for post box...');
     const postBox = await driver.wait(
-      until.elementLocated(By.xpath('//*[@id="screen-root"]/div/div[3]/div[5]/div[2]/div')),
+      until.elementLocated(By.xpath('//*[@id="screen-root"]/div/div[3]/div[6]/div[2]/div')),
       10000
     );
     await postBox.click();
@@ -64,13 +66,22 @@ async function postToFacebookGroup({ email, password, cookies, groupId, content 
       until.elementLocated(By.xpath('//*[@id="screen-root"]/div/div[2]/div[5]/div/div')),
       10000
     );
-    await composer.sendKeys(content);
+    console.log('[Selenium] Click composer...')
+    await composer.click();
+    await driver.sleep(1000);
+
+    console.log('[Selenium] Waiting fill content...');
+    clipboard.writeSync(content);
+    console.log('[Selenium] Copied content to clipboard...')
+
+    await driver.sleep(1000);
+    robot.keyTap('v', 'command');
     await driver.sleep(1000);
 
     // Chờ nút Post và click
     console.log('[Selenium] Waiting for post button...');
     const postBtn = await driver.wait(
-      until.elementLocated(By.xpath('//*[@id="screen-root"]/div/div[2]/div[9]/div/div')),
+      until.elementLocated(By.xpath('//*[@id="screen-root"]/div/div[2]/div[2]/div[3]')),
       10000
     );
     await postBtn.click();
