@@ -1,102 +1,78 @@
-const { Builder, By, Key, until } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
-const clipboard = require('clipboardy').default;
-const robot = require('robotjs');
+const puppeteer = require('puppeteer');
 
-async function postToFacebookGroup({ email, password, cookies, groupId, content }) {
-  let options = new chrome.Options();
-  options.addArguments('--no-sandbox');
-  options.addArguments('--disable-dev-shm-usage');
-  options.addArguments('--disable-notifications');
-  options.addArguments('--disable-infobars');
-  options.addArguments('--disable-gpu');
-  options.addArguments('--window-size=360,640');
-  // Bật/tắt headless tại đây nếu muốn
-  options.addArguments('--headless=new');
-  // Mobile emulation
-  options.setMobileEmulation({
-    deviceMetrics: { width: 360, height: 640, pixelRatio: 3.0 },
-    userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1'
+async function postToFacebookGroup({ cookies, groupId, content }) {
+  console.log('[Puppeteer] Launching browser...');
+  const browser = await puppeteer.launch({
+    headless: true,
+    // executablePath: '/home/tippingseek02/trucnv/chrome-linux64/chrome',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--window-size=360,640',
+      '--disable-notifications'
+    ]
   });
 
-  let driver;
-  try {
-    console.log('[Selenium] Building driver...');
-    driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build();
-    console.log('[Selenium] Driver built. Navigating to Facebook...');
-    await driver.get('https://m.facebook.com/');
+  const page = await browser.newPage();
+  await page.setUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 13_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1');
+  await page.setViewport({ width: 375, height: 812, isMobile: true });
 
-    // Nếu có cookies thì set cookies, không thì login bằng email/password
-    if (cookies && Array.isArray(cookies) && cookies.length > 0) {
-      console.log('[Selenium] Setting cookies...');
-      for (const cookie of cookies) {
-        await driver.manage().addCookie(cookie);
-      }
-      const allCookies = await driver.manage().getCookies();
-      console.log('[Selenium] All cookies after add:', allCookies);
-      await driver.navigate().refresh();
-      await driver.sleep(3000);
-      // Kiểm tra đăng nhập thành công chưa
-      // (Có thể kiểm tra bằng một element đặc trưng giao diện mobile)
-      // Không cần kiểm tra quá sâu, chỉ log lại
-      console.log('[Selenium] Đã thử đăng nhập bằng cookie, tiếp tục thao tác...');
-    } else if (email && password) {
-      throw new Error('Chỉ hỗ trợ đăng nhập bằng cookie ở chế độ mobile!');
-    } else {
-      throw new Error('Thiếu thông tin đăng nhập Facebook (cookie)');
-    }
-
-    // Truy cập group
-    console.log('[Selenium] Navigating to group:', groupId);
-    await driver.get(`https://m.facebook.com/groups/${groupId}`);
-    await driver.sleep(3000);
-
-    // Chờ post box và click
-    console.log('[Selenium] Waiting for post box...');
-    const postBox = await driver.wait(
-      until.elementLocated(By.xpath('//*[@id="screen-root"]/div/div[3]/div[6]/div[2]/div')),
-      10000
-    );
-    await postBox.click();
-    await driver.sleep(1000);
-
-    // Chờ composer và nhập nội dung
-    console.log('[Selenium] Waiting for composer...');
-    const composer = await driver.wait(
-      until.elementLocated(By.xpath('//*[@id="screen-root"]/div/div[2]/div[5]/div/div')),
-      10000
-    );
-    console.log('[Selenium] Click composer...')
-    await composer.click();
-    await driver.sleep(1000);
-
-    console.log('[Selenium] Waiting fill content...');
-    clipboard.writeSync(content);
-    console.log('[Selenium] Copied content to clipboard...')
-
-    await driver.sleep(1000);
-    robot.keyTap('v', 'command');
-    await driver.sleep(1000);
-
-    // Chờ nút Post và click
-    console.log('[Selenium] Waiting for post button...');
-    const postBtn = await driver.wait(
-      until.elementLocated(By.xpath('//*[@id="screen-root"]/div/div[2]/div[2]/div[3]')),
-      10000
-    );
-    await postBtn.click();
-    await driver.sleep(3000);
-
-    console.log('[Selenium] Post successful.');
-    return { success: true, message: 'Đăng bài thành công' };
-  } catch (error) {
-    console.error('[Selenium] Error:', error);
-    return { success: false, message: error.message };
-  } finally {
-    if (driver) {
-      await driver.quit();
-    }
+  // Set cookies nếu có
+  if (cookies && Array.isArray(cookies)) {
+    console.log('[Puppeteer] Setting cookies...');
+    await page.setCookie(...cookies);
   }
+
+  // Truy cập group
+  console.log(`[Puppeteer] Navigating to group: ${groupId}`);
+  await page.goto(`https://m.facebook.com/groups/${groupId}`, { waitUntil: 'networkidle2' });
+
+  // Kiểm tra đăng nhập thành công
+  try {
+    await page.waitForSelector('#screen-root > div > div:nth-child(3) > div:nth-child(6) > div:nth-child(2) > div', { timeout: 5000 });
+    console.log('[Puppeteer] Đăng nhập thành công!');
+  } catch (e) {
+    console.log('[Puppeteer] Đăng nhập thất bại hoặc cookie không hợp lệ!');
+    await browser.close();
+    return { success: false, message: 'Đăng nhập thất bại hoặc cookie không hợp lệ!' };
+  }
+
+  // Click vào ô đăng bài
+  console.log('[Puppeteer] Waiting for post box...');
+  await page.waitForSelector('#screen-root > div > div:nth-child(3) > div:nth-child(6) > div:nth-child(2) > div', { timeout: 10000 });
+  console.log('[Puppeteer] Clicking post box...');
+  await page.click('#screen-root > div > div:nth-child(3) > div:nth-child(6) > div:nth-child(2) > div');
+
+  // Chờ khung soạn thảo hiện ra và nhập nội dung
+  console.log('[Puppeteer] Waiting for composer...');
+  await page.waitForSelector('#screen-root > div > div:nth-child(2) > div:nth-child(5) > div > div', { timeout: 10000 });
+  console.log('[Puppeteer] Typing content...');
+  console.log('content:', content);
+  
+  // Focus vào composer và clear content cũ
+  await page.click('#screen-root > div > div:nth-child(2) > div:nth-child(5) > div > div');
+  await new Promise(resolve => setTimeout(resolve, 5000));
+  
+  // Nhập content bằng keyboard
+  for (let i = 0; i < content.length; i++) {
+    await page.keyboard.press(content[i]);
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  // Click nút Đăng
+  console.log('[Puppeteer] Waiting for post button...');
+  await page.waitForSelector('#screen-root > div > div:nth-child(2) > div:nth-child(2) > div:nth-child(3)', { timeout: 10000 });
+  console.log('[Puppeteer] Clicking post button...');
+  await page.click('#screen-root > div > div:nth-child(2) > div:nth-child(2) > div:nth-child(3)');
+
+  // Đợi đăng xong
+  console.log('[Puppeteer] Waiting for post to complete....');
+  await new Promise(resolve => setTimeout(resolve, 3000));
+
+  await browser.close();
+  console.log('[Puppeteer] Post successful.');
+  return { success: true, message: 'Đăng bài thành công' };
 }
 
 module.exports = { postToFacebookGroup }; 
